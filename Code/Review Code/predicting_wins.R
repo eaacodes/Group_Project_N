@@ -99,4 +99,4 @@ print(test_theory)
 #Ashford's chances of winning, even to the point where you're more
 #likely to lose to 17th away than 3rd at home, just showing
 #how much better Ashford are at home, even when playing much worse
-#opponents
+#opponents.
