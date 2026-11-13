@@ -1,1 +1,41 @@
 #Binomial Regression
+
+
+str(league_players)
+logit_model <- glm(injured ~ age + minutes_played + training_load + prev_injuries + bmi, data = league_players, family = binomial(link = "logit"))
+  summary(logit_model)
+  exp(coef(logit_model))
+  
+install.packages("ggplot2")
+  library(ggplot2)
+
+coef_summary <- summary(logit_model)$coefficients
+or <- exp(coef(logit_model))
+ci <- exp(confint(logit_model))      
+
+plot_data <- data.frame(
+  Feature = rownames(coef_summary)[-1],
+  OR = or[-1],
+  Lower = ci[-1, 1],
+  Upper = ci[-1, 2]
+)
+
+plot_data$Feature <- c("Age", "Minutes Played", "Training Load", "Previous Injuries", "BMI")
+
+ggplot(plot_data, aes(x = reorder(Feature, OR), y = OR)) +
+  geom_point(size = 3, color = "#2c3e50") +
+  geom_errorbar(aes(ymin = Lower, ymax = Upper), width = 0.2, color = "#2c3e50", linewidth = 0.8) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "red", linewidth = 0.8) +
+  coord_flip() +
+  labs(
+    title = "Effect of Predictors on Injury Risk (Odds Ratios)",
+    subtitle = "Error bars represent 95% Confidence Intervals",
+    x = "Predictor",
+    y = "Odds Ratio (log scale)"
+  ) +
+  scale_y_log10() +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", size = 16),
+    panel.grid.minor = element_blank()
+  )
