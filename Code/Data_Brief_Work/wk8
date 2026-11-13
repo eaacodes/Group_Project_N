@@ -1,1 +1,98 @@
 #Contingency Tables I
+
+data_lp = read.csv("league_players.csv")
+data_ap = read.csv("ashford_matches.csv")
+
+#home / away x results
+
+data_ap$result = with(data_ap,
+                      factor(ifelse(goals_scored > goals_conceded, "Win",
+                            ifelse(goals_scored < goals_conceded, "Loss",
+                                   "Draw")),
+                            levels=c("Win", "Draw", "Loss")))
+
+data_ap$home_away = as.factor(data_ap$home_away)
+CT_hw = table(data_ap$home_away, data_ap$result)
+addmargins(CT_hw)
+
+e_hw_res = chisq.test(CT_hw)$expected
+round(e_hw_res, 2)
+
+w = chisq.test(CT_hw)
+w
+
+# p value is 0.334 so there's sufficient evidence
+# to suggest that playing home or away impacts
+# the results
+
+#opponent rank band x result
+
+data_ap$table_grouping = cut(data_ap$opponent_rank,
+                             c(0,6,12,18,24),
+                             labels = c("1-6","7-12",
+                                        "13-18","19-24")
+                             )
+
+CT_rb = table(data_ap$table_grouping, data_ap$result)
+addmargins(CT_rb)
+
+e_rb = chisq.test(CT_rb)$expected
+round(e_rb, 2)
+
+x = chisq.test(CT_rb)
+x
+
+#most of the e_ij's are <5 so the X^2 approximation 
+#so the p value may not be accurate
+# p value of 0.012 < 0.05 so evidence to suggest
+#that playing opponents ranked higher in the tables
+# brings a greater chance of loss
+
+
+#goals scored x home / away
+
+data_ap$gs_hw = factor(
+  ifelse(data_ap$goals_scored == 0, "0",
+  ifelse(data_ap$goals_scored == 1, "1",
+  ifelse(data_ap$goals_scored == 2, "2",
+  "3+"))),
+  levels = c("0","1","2","3+")
+)
+
+CT_gs = table(data_ap$gs_hw, data_ap$home_away)
+addmargins(CT_gs)
+
+e_gs = chisq.test(CT_gs)$expected
+round(e_gs, 2)
+
+y = chisq.test(CT_gs)
+y
+
+# a lot of the e_ij's < 5 so the approximation
+#may not be accurate
+#p value 0.156 > 0.05 so no evidence to suggest
+# a correlation between the two
+
+#goals conceded x home / away
+
+data_ap$gc_hw = factor(
+  ifelse(data_ap$goals_conceded == 0, "0",
+  ifelse(data_ap$goals_conceded == 1, "1",
+  ifelse(data_ap$goals_conceded == 2, "2",
+  "3+"))),
+  levels = c("0","1","2","3+")
+)
+
+CT_gc = table(data_ap$gc_hw, data_ap$home_away)
+addmargins(CT_gc)
+
+e_gc = chisq.test(CT_gc)$expected
+round(e_gc, 2)
+
+z = chisq.test(CT_gc)
+z
+
+#some e_ij's are <5 so the X^2 approximation may
+#not be as accurate / may be incorrect
+#p value of 0.153 so no evidence of 
+#correlation between the two
