@@ -7,9 +7,9 @@ Statistcal Modelling II Group Work
 Must also contain the link to the shared workspace.
 
 So report must have:
-Executive summary,
-# Q1 Analysis,
-# Q2 Analysis,
-# Q3 Analysis.
+# Executive summary
+# Q1 Analysis
+# Q2 Analysis
+# Q3 Analysis
 
 There should also be a short conclusion section that notes the main findings and their limitations.
