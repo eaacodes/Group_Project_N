@@ -6,11 +6,10 @@ R code appendix doesn't count towards the page limit
 
 Must also contain the link to the shared workspace
 
-So report structure:
-
-Executive summary
-Q1 Analysis
-Q2 Analysis
-Q3 Analysis
+So report must have:
+Executive summary,
+ Q1 Analysis,
+ Q2 Analysis,
+ Q3 Analysis
 
 There should also be a short conclusion section that notes the main findings and their limitations
