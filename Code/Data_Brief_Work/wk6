@@ -30,9 +30,7 @@ boxplot(goals_scored ~ home_away,
         col = c("lightblue", "lightcoral"))
 
 
-############################################################
 # PART 2: POISSON REGRESSION MODELS
-############################################################
 
 # Model 1: Goals scored explained by home/away status
 ashford_model1 <- glm(
@@ -129,10 +127,7 @@ predict(
   type = "response"
 )
 
-
-############################################################
 # PART 3: PLAYER INJURY DATA
-############################################################
 
 # Load player data
 players <- read.csv("league_players.csv")
@@ -149,9 +144,7 @@ table(players$injured)
 mean(players$injured) * 100
 
 
-############################################################
 # PART 4: INJURY BY PLAYING POSITION
-############################################################
 
 # Injury counts by position
 table(players$position, players$injured)
@@ -181,10 +174,7 @@ chisq.test(
   table(players$position, players$injured)
 )
 
-
-############################################################
 # PART 5: AGE AND INJURY STATUS
-############################################################
 
 # Mean age by injury status
 aggregate(age ~ injured, data = players, mean)
@@ -204,9 +194,7 @@ boxplot(
 t.test(age ~ injured, data = players)
 
 
-############################################################
 # PART 6: PREVIOUS INJURIES AND CURRENT INJURY STATUS
-############################################################
 
 # Mean previous injuries by current injury status
 aggregate(prev_injuries ~ injured,
@@ -231,9 +219,7 @@ wilcox.test(
 )
 
 
-############################################################
 # PART 7: TRAINING LOAD AND INJURY STATUS
-############################################################
 
 # Mean training load by injury status
 aggregate(training_load ~ injured,
@@ -257,10 +243,7 @@ wilcox.test(
   data = players
 )
 
-
-############################################################
 # PART 8: BMI AND INJURY STATUS
-############################################################
 
 # Mean BMI by injury status
 aggregate(bmi ~ injured,
@@ -285,9 +268,7 @@ wilcox.test(
 )
 
 
-############################################################
 # PART 9: MINUTES PLAYED AND INJURY STATUS
-############################################################
 
 # Mean minutes played by injury status
 aggregate(minutes_played ~ injured,
@@ -311,10 +292,7 @@ wilcox.test(
   data = players
 )
 
-
-############################################################
 # PART 10: INJURY RATES BY TEAM
-############################################################
 
 # Injury counts by team
 team_injury_table <- table(
@@ -354,6 +332,3 @@ chisq.test(
 )
 
 
-############################################################
-# END OF WEEK 6 EXPLORATORY ANALYSIS
-############################################################
