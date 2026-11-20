@@ -1,518 +1,359 @@
-#Poisson Regression
-> ashford <- read.csv(file.choose())
-> head(ashford)
-  home_away goals_scored goals_conceded opponent_rank
-1      Home            2              1             1
-2      Home            0              1             3
-3      Home            1              0             4
-4      Home            2              0             6
-5      Home            3              1            20
-6      Home            0              2             2
-  shots_on_target possession
-1               6       48.1
-2               3       48.3
-3               4       45.6
-4               7       65.8
-5               5       54.0
-6               2       49.2
-> str(ashford)
-'data.frame':	46 obs. of  6 variables:
- $ home_away      : chr  "Home" "Home" "Home" "Home" ...
- $ goals_scored   : int  2 0 1 2 3 0 0 8 1 2 ...
- $ goals_conceded : int  1 1 0 0 1 2 0 0 1 0 ...
- $ opponent_rank  : int  1 3 4 6 20 2 18 24 7 23 ...
- $ shots_on_target: int  6 3 4 7 5 2 4 10 6 5 ...
- $ possession     : num  48.1 48.3 45.6 65.8 54 49.2 48.7 72 51.1 53.8 ...
-> summary(ashford)
-  home_away          goals_scored   goals_conceded  
- Length:46          Min.   :0.000   Min.   :0.0000  
- Class :character   1st Qu.:0.000   1st Qu.:0.0000  
- Mode  :character   Median :1.000   Median :1.0000  
-                    Mean   :1.304   Mean   :0.8261  
-                    3rd Qu.:2.000   3rd Qu.:1.0000  
-                    Max.   :8.000   Max.   :3.0000  
- opponent_rank   shots_on_target   possession   
- Min.   : 1.00   Min.   : 1.0    Min.   :38.20  
- 1st Qu.: 6.25   1st Qu.: 3.0    1st Qu.:48.33  
- Median :13.00   Median : 5.0    Median :50.55  
- Mean   :12.65   Mean   : 4.5    Mean   :51.22  
- 3rd Qu.:18.75   3rd Qu.: 5.0    3rd Qu.:53.45  
- Max.   :24.00   Max.   :10.0    Max.   :72.00  
-> table(ashford$home_away)
+Week 6 
 
-Away Home 
-  23   23 
-> aggregate(goals_scored ~ home_away, data = ashford, mean)
-  home_away goals_scored
-1      Away    0.8695652
-2      Home    1.7391304
-> boxplot(goals_scored ~ home_away, data = ashford,
-+         main = "Goals Scored at Home and Away",
-+         xlab = "Match Venue",
-+         ylab = "Goals Scored",
-+         col = c("lightblue", "lightgreen"))
-> ashford$home_away <- as.factor(ashford$home_away)
-> str(ashford)
-'data.frame':	46 obs. of  6 variables:
- $ home_away      : Factor w/ 2 levels "Away","Home": 2 2 2 2 2 2 2 2 2 2 ...
- $ goals_scored   : int  2 0 1 2 3 0 0 8 1 2 ...
- $ goals_conceded : int  1 1 0 0 1 2 0 0 1 0 ...
- $ opponent_rank  : int  1 3 4 6 20 2 18 24 7 23 ...
- $ shots_on_target: int  6 3 4 7 5 2 4 10 6 5 ...
- $ possession     : num  48.1 48.3 45.6 65.8 54 49.2 48.7 72 51.1 53.8 ...
-> ashford_model1 <- glm(goals_scored ~ home_away,
-+                       family = poisson(link = "log"),
-+                       data = ashford)
-> summary(ashford_model1)
+# PART 1: ASHFORD UNITED MATCH DATA
 
-Call:
-glm(formula = goals_scored ~ home_away, family = poisson(link = "log"), 
-    data = ashford)
+# Load match data
+ashford <- read.csv("ashford_matches_individual.csv")
 
-Coefficients:
-              Estimate Std. Error z value Pr(>|z|)  
-(Intercept)    -0.1398     0.2236  -0.625   0.5319  
-home_awayHome   0.6931     0.2739   2.531   0.0114 *
----
-Signif. codes:  
-0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+# Inspect data
+head(ashford)
+str(ashford)
+summary(ashford)
 
-(Dispersion parameter for poisson family taken to be 1)
+# Convert home_away into a factor
+ashford$home_away <- as.factor(ashford$home_away)
 
-    Null deviance: 64.844  on 45  degrees of freedom
-Residual deviance: 58.048  on 44  degrees of freedom
-AIC: 139.7
+# Number of home and away matches
+table(ashford$home_away)
 
-Number of Fisher Scoring iterations: 5
+# Average goals scored at home and away
+aggregate(goals_scored ~ home_away,
+          data = ashford,
+          mean)
 
-> exp(coef(ashford_model1))
-  (Intercept) home_awayHome 
-    0.8695652     2.0000000 
-> pchisq(deviance(ashford_model1),
-+        df = df.residual(ashford_model1),
-+        lower.tail = FALSE)
-[1] 0.07608577
-> sum(residuals(ashford_model1, type = "pearson")^2) /
-+     df.residual(ashford_model1)
-[1] 1.276136
-> ashford_model2 <- glm(goals_scored ~ home_away + shots_on_target,
-+                       family = poisson(link = "log"),
-+                       data = ashford)
-> 
-> summary(ashford_model2)
+# Boxplot of goals scored by venue
+boxplot(goals_scored ~ home_away,
+        data = ashford,
+        main = "Goals Scored at Home and Away",
+        xlab = "Match Venue",
+        ylab = "Goals Scored",
+        col = c("lightblue", "lightcoral"))
 
-Call:
-glm(formula = goals_scored ~ home_away + shots_on_target, family = poisson(link = "log"), 
-    data = ashford)
 
-Coefficients:
-                Estimate Std. Error z value Pr(>|z|)
-(Intercept)     -1.68688    0.38605  -4.370 1.24e-05
-home_awayHome    0.29199    0.29222   0.999    0.318
-shots_on_target  0.35016    0.06617   5.292 1.21e-07
-                   
-(Intercept)     ***
-home_awayHome      
-shots_on_target ***
----
-Signif. codes:  
-0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+############################################################
+# PART 2: POISSON REGRESSION MODELS
+############################################################
 
-(Dispersion parameter for poisson family taken to be 1)
+# Model 1: Goals scored explained by home/away status
+ashford_model1 <- glm(
+  goals_scored ~ home_away,
+  family = poisson(link = "log"),
+  data = ashford
+)
 
-    Null deviance: 64.844  on 45  degrees of freedom
-Residual deviance: 32.783  on 43  degrees of freedom
-AIC: 116.43
+summary(ashford_model1)
 
-Number of Fisher Scoring iterations: 5
+# Exponentiated coefficients
+exp(coef(ashford_model1))
 
-> exp(coef(ashford_model2))
-    (Intercept)   home_awayHome shots_on_target 
-      0.1850955       1.3390872       1.4192968 
-> ashford_model3 <- glm(goals_scored ~ home_away + shots_on_target +
-+                           opponent_rank,
-+                       family = poisson(link = "log"),
-+                       data = ashford)
-> 
-> summary(ashford_model3)
+# Goodness-of-fit test
+pchisq(
+  deviance(ashford_model1),
+  df = df.residual(ashford_model1),
+  lower.tail = FALSE
+)
 
-Call:
-glm(formula = goals_scored ~ home_away + shots_on_target + opponent_rank, 
-    family = poisson(link = "log"), data = ashford)
+# Pearson dispersion statistic
+sum(residuals(ashford_model1, type = "pearson")^2) /
+  df.residual(ashford_model1)
 
-Coefficients:
-                Estimate Std. Error z value Pr(>|z|)
-(Intercept)     -1.81484    0.40260  -4.508 6.55e-06
-home_awayHome    0.32765    0.29333   1.117    0.264
-shots_on_target  0.31211    0.07288   4.283 1.85e-05
-opponent_rank    0.02196    0.01999   1.099    0.272
-                   
-(Intercept)     ***
-home_awayHome      
-shots_on_target ***
-opponent_rank      
----
-Signif. codes:  
-0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-(Dispersion parameter for poisson family taken to be 1)
+# Model 2: Add shots on target
+ashford_model2 <- glm(
+  goals_scored ~ home_away + shots_on_target,
+  family = poisson(link = "log"),
+  data = ashford
+)
 
-    Null deviance: 64.844  on 45  degrees of freedom
-Residual deviance: 31.552  on 42  degrees of freedom
-AIC: 117.2
+summary(ashford_model2)
 
-Number of Fisher Scoring iterations: 5
+# Exponentiated coefficients
+exp(coef(ashford_model2))
 
-> anova(ashford_model2, ashford_model3, test = "Chisq")
-Analysis of Deviance Table
+# Goodness-of-fit test
+pchisq(
+  deviance(ashford_model2),
+  df = df.residual(ashford_model2),
+  lower.tail = FALSE
+)
 
-Model 1: goals_scored ~ home_away + shots_on_target
-Model 2: goals_scored ~ home_away + shots_on_target + opponent_rank
-  Resid. Df Resid. Dev Df Deviance Pr(>Chi)
-1        43     32.783                     
-2        42     31.552  1   1.2307   0.2673
-> ashford_model4 <- glm(goals_scored ~ home_away + shots_on_target +
-+                           possession,
-+                       family = poisson(link = "log"),
-+                       data = ashford)
-> 
-> summary(ashford_model4)
+# Pearson dispersion statistic
+sum(residuals(ashford_model2, type = "pearson")^2) /
+  df.residual(ashford_model2)
 
-Call:
-glm(formula = goals_scored ~ home_away + shots_on_target + possession, 
-    family = poisson(link = "log"), data = ashford)
 
-Coefficients:
-                Estimate Std. Error z value Pr(>|z|)
-(Intercept)     -2.91853    1.28386  -2.273   0.0230
-home_awayHome    0.23700    0.30078   0.788   0.4307
-shots_on_target  0.23565    0.12897   1.827   0.0677
-possession       0.03487    0.03443   1.013   0.3112
-                 
-(Intercept)     *
-home_awayHome    
-shots_on_target .
-possession       
----
-Signif. codes:  
-0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+# Model 3: Add opponent rank
+ashford_model3 <- glm(
+  goals_scored ~ home_away + shots_on_target +
+    opponent_rank,
+  family = poisson(link = "log"),
+  data = ashford
+)
 
-(Dispersion parameter for poisson family taken to be 1)
+summary(ashford_model3)
 
-    Null deviance: 64.844  on 45  degrees of freedom
-Residual deviance: 31.758  on 42  degrees of freedom
-AIC: 117.41
+# Compare Models 2 and 3
+anova(ashford_model2, ashford_model3, test = "Chisq")
 
-Number of Fisher Scoring iterations: 5
 
-> anova(ashford_model2, ashford_model4, test = "Chisq")
-Analysis of Deviance Table
+# Model 4: Add possession
+ashford_model4 <- glm(
+  goals_scored ~ home_away + shots_on_target +
+    possession,
+  family = poisson(link = "log"),
+  data = ashford
+)
 
-Model 1: goals_scored ~ home_away + shots_on_target
-Model 2: goals_scored ~ home_away + shots_on_target + possession
-  Resid. Df Resid. Dev Df Deviance Pr(>Chi)
-1        43     32.783                     
-2        42     31.758  1   1.0246   0.3114
-> par(mfrow = c(2, 2))
-> plot(ashford_model2)
-> par(mfrow = c(1, 1))
-> sum(residuals(ashford_model2, type = "pearson")^2) /
-+     df.residual(ashford_model2)
-[1] 0.6451285
-> which.max(ashford$goals_scored)
-[1] 8
-> ashford[8, ]
-  home_away goals_scored goals_conceded opponent_rank
-8      Home            8              0            24
-  shots_on_target possession
-8              10         72
-> predict(ashford_model2, 
-+         newdata = ashford[8, ], 
-+         type = "response")
-       8 
-8.221229 
-> pchisq(deviance(ashford_model2),
-+        df = df.residual(ashford_model2),
-+        lower.tail = FALSE)
-[1] 0.8707726
-> summary(ashford_model2)
+summary(ashford_model4)
 
-Call:
-glm(formula = goals_scored ~ home_away + shots_on_target, family = poisson(link = "log"), 
-    data = ashford)
+# Compare Models 2 and 4
+anova(ashford_model2, ashford_model4, test = "Chisq")
 
-Coefficients:
-                Estimate Std. Error z value Pr(>|z|)
-(Intercept)     -1.68688    0.38605  -4.370 1.24e-05
-home_awayHome    0.29199    0.29222   0.999    0.318
-shots_on_target  0.35016    0.06617   5.292 1.21e-07
-                   
-(Intercept)     ***
-home_awayHome      
-shots_on_target ***
----
-Signif. codes:  
-0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-(Dispersion parameter for poisson family taken to be 1)
+# Diagnostic plots for Model 2
+par(mfrow = c(2, 2))
+plot(ashford_model2)
+par(mfrow = c(1, 1))
 
-    Null deviance: 64.844  on 45  degrees of freedom
-Residual deviance: 32.783  on 43  degrees of freedom
-AIC: 116.43
 
-Number of Fisher Scoring iterations: 5
+# Identify match with highest goals scored
+which.max(ashford$goals_scored)
 
-> players <- read.csv(file.choose())
-> head(players)
-            team position age minutes_played
-1 Ashford United      DEF  27           3117
-2 Ashford United       GK  27           3960
-3 Ashford United      DEF  27           2172
-4 Ashford United      DEF  21           2782
-5 Ashford United       GK  26           3472
-6 Ashford United      FWD  25           2242
-  training_load prev_injuries  bmi injured
-1             4             0 25.2       1
-2             4             2 21.8       0
-3             2             2 19.0       0
-4             2             3 20.5       1
-5             5             0 24.1       0
-6             2             0 23.3       0
-> str(players)
-'data.frame':	620 obs. of  8 variables:
- $ team          : chr  "Ashford United" "Ashford United" "Ashford United" "Ashford United" ...
- $ position      : chr  "DEF" "GK" "DEF" "DEF" ...
- $ age           : int  27 27 27 21 26 25 24 26 25 26 ...
- $ minutes_played: int  3117 3960 2172 2782 3472 2242 2887 2979 2474 2558 ...
- $ training_load : int  4 4 2 2 5 2 3 3 2 2 ...
- $ prev_injuries : int  0 2 2 3 0 0 1 0 0 1 ...
- $ bmi           : num  25.2 21.8 19 20.5 24.1 23.3 22.8 24.1 21.7 26.4 ...
- $ injured       : int  1 0 0 1 0 0 0 0 0 0 ...
-> table(players$injured)
+# Inspect that match
+ashford[8, ]
 
-  0   1 
-505 115 
-> mean(players$injured) * 100
-[1] 18.54839
-> table(players$position, players$injured)
-     
-        0   1
-  DEF 182  34
-  FWD 111  25
-  GK   45  17
-  MID 167  39
-> prop.table(table(players$position, players$injured), 1) * 100
-     
-             0        1
-  DEF 84.25926 15.74074
-  FWD 81.61765 18.38235
-  GK  72.58065 27.41935
-  MID 81.06796 18.93204
-> position_injury <- prop.table(
-+     table(players$position, players$injured), 1
-+ ) * 100
-> 
-> barplot(position_injury[, "1"],
-+         main = "Injury Percentage by Playing Position",
-+         xlab = "Playing Position",
-+         ylab = "Percentage Injured",
-+         col = "steelblue",
-+         ylim = c(0, 35))
-> chisq.test(table(players$position, players$injured))
+# Predicted goals for match 8
+predict(
+  ashford_model2,
+  newdata = ashford[8, ],
+  type = "response"
+)
 
-	Pearson's Chi-squared test
 
-data:  table(players$position, players$injured)
-X-squared = 4.379, df = 3, p-value = 0.2233
+############################################################
+# PART 3: PLAYER INJURY DATA
+############################################################
 
-> aggregate(age ~ injured, data = players, mean)
-  injured      age
-1       0 24.79010
-2       1 26.26957
-> boxplot(age ~ injured,
-+         data = players,
-+         names = c("Not injured", "Injured"),
-+         main = "Age by Injury Status",
-+         xlab = "Injury Status",
-+         ylab = "Age (years)",
-+         col = c("lightblue", "lightcoral"))
-> t.test(age ~ injured, data = players)
+# Load player data
+players <- read.csv("league_players.csv")
 
-	Welch Two Sample t-test
+# Inspect data
+head(players)
+str(players)
+summary(players)
 
-data:  age by injured
-t = -3.6731, df = 166.52, p-value = 0.0003226
-alternative hypothesis: true difference in means between group 0 and group 1 is not equal to 0
-95 percent confidence interval:
- -2.2746783 -0.6842541
-sample estimates:
-mean in group 0 mean in group 1 
-       24.79010        26.26957 
+# Number of injured and non-injured players
+table(players$injured)
 
-> aggregate(prev_injuries ~ injured,
-+           data = players,
-+           mean)
-  injured prev_injuries
-1       0      0.780198
-2       1      1.443478
-> boxplot(prev_injuries ~ injured,
-+         data = players,
-+         names = c("Not injured", "Injured"),
-+         main = "Previous Injuries by Current Injury Status",
-+         xlab = "Current Injury Status",
-+         ylab = "Number of Previous Injuries",
-+         col = c("lightblue", "lightcoral"))
-> wilcox.test(prev_injuries ~ injured,
-+             data = players)
+# Overall injury percentage
+mean(players$injured) * 100
 
-	Wilcoxon rank sum test with continuity
-	correction
 
-data:  prev_injuries by injured
-W = 19895, p-value = 1.499e-08
-alternative hypothesis: true location shift is not equal to 0
+############################################################
+# PART 4: INJURY BY PLAYING POSITION
+############################################################
 
-> aggregate(training_load ~ injured,
-+           data = players,
-+           mean)
-  injured training_load
-1       0      3.136634
-2       1      3.486957
-> boxplot(training_load ~ injured,
-+         data = players,
-+         names = c("Not injured", "Injured"),
-+         main = "Training Load by Injury Status",
-+         xlab = "Current Injury Status",
-+         ylab = "Training Load",
-+         col = c("lightblue", "lightcoral"))
-> wilcox.test(training_load ~ injured,
-+             data = players)
+# Injury counts by position
+table(players$position, players$injured)
 
-	Wilcoxon rank sum test with continuity
-	correction
+# Injury percentages by position
+prop.table(
+  table(players$position, players$injured),
+  1
+) * 100
 
-data:  training_load by injured
-W = 23164, p-value = 0.0003972
-alternative hypothesis: true location shift is not equal to 0
+# Bar chart of injury percentage by position
+position_injury <- prop.table(
+  table(players$position, players$injured),
+  1
+) * 100
 
-> aggregate(bmi ~ injured,
-+           data = players,
-+           mean)
-  injured      bmi
-1       0 23.54297
-2       1 23.42435
-> boxplot(bmi ~ injured,
-+         data = players,
-+         names = c("Not injured", "Injured"),
-+         main = "BMI by Injury Status",
-+         xlab = "Current Injury Status",
-+         ylab = "BMI",
-+         col = c("lightblue", "lightcoral"))
-> wilcox.test(bmi ~ injured,
-+             data = players)
+barplot(
+  position_injury[, "1"],
+  main = "Injury Percentage by Playing Position",
+  xlab = "Playing Position",
+  ylab = "Percentage Injured",
+  col = "steelblue"
+)
 
-	Wilcoxon rank sum test with continuity
-	correction
+# Chi-squared test: position and injury status
+chisq.test(
+  table(players$position, players$injured)
+)
 
-data:  bmi by injured
-W = 30729, p-value = 0.3292
-alternative hypothesis: true location shift is not equal to 0
 
-> aggregate(minutes_played ~ injured,
-+           data = players,
-+           mean)
-  injured minutes_played
-1       0       2525.610
-2       1       2604.626
-> boxplot(minutes_played ~ injured,
-+         data = players,
-+         names = c("Not injured", "Injured"),
-+         main = "Minutes Played by Injury Status",
-+         xlab = "Current Injury Status",
-+         ylab = "Minutes Played",
-+         col = c("lightblue", "lightcoral"))
-> wilcox.test(minutes_played ~ injured,
-+             data = players)
+############################################################
+# PART 5: AGE AND INJURY STATUS
+############################################################
 
-	Wilcoxon rank sum test with continuity
-	correction
+# Mean age by injury status
+aggregate(age ~ injured, data = players, mean)
 
-data:  minutes_played by injured
-W = 26566, p-value = 0.1541
-alternative hypothesis: true location shift is not equal to 0
+# Boxplot
+boxplot(
+  age ~ injured,
+  data = players,
+  names = c("Not injured", "Injured"),
+  main = "Age by Injury Status",
+  xlab = "Injury Status",
+  ylab = "Age (years)",
+  col = c("lightblue", "lightcoral")
+)
 
-> table(players$team, players$injured)
-                  
-                    0  1
-  Ashford United   21  4
-  Bramley Town     19  7
-  Casterwick FC    20  4
-  Dunmore Athletic 24  4
-  Elwick Rovers    21  3
-  Ferndale City    25  3
-  Grantwick FC     15 12
-  Hartwell United  24  3
-  Ironside FC      19  5
-  Jarrow Athletic  21  5
-  Kelwick Town     20  5
-  Longton City     18  7
-  Moorfield FC     22  2
-  Norbury United   24  4
-  Oldham Vale      21  6
-  Penwick Rangers  22  2
-  Queensbury FC    22  4
-  Redwick Town     19  5
-  Stanwick City    20  4
-  Thornbury AFC    18  7
-  Ulverton FC      24  4
-  Vale Wanderers   25  3
-  Westgate FC      19  6
-  Yorwick United   22  6
-> prop.table(table(players$team, players$injured), 1) * 100
-                  
-                           0         1
-  Ashford United   84.000000 16.000000
-  Bramley Town     73.076923 26.923077
-  Casterwick FC    83.333333 16.666667
-  Dunmore Athletic 85.714286 14.285714
-  Elwick Rovers    87.500000 12.500000
-  Ferndale City    89.285714 10.714286
-  Grantwick FC     55.555556 44.444444
-  Hartwell United  88.888889 11.111111
-  Ironside FC      79.166667 20.833333
-  Jarrow Athletic  80.769231 19.230769
-  Kelwick Town     80.000000 20.000000
-  Longton City     72.000000 28.000000
-  Moorfield FC     91.666667  8.333333
-  Norbury United   85.714286 14.285714
-  Oldham Vale      77.777778 22.222222
-  Penwick Rangers  91.666667  8.333333
-  Queensbury FC    84.615385 15.384615
-  Redwick Town     79.166667 20.833333
-  Stanwick City    83.333333 16.666667
-  Thornbury AFC    72.000000 28.000000
-  Ulverton FC      85.714286 14.285714
-  Vale Wanderers   89.285714 10.714286
-  Westgate FC      76.000000 24.000000
-  Yorwick United   78.571429 21.428571
-> team_injury <- prop.table(
-+     table(players$team, players$injured), 1
-+ ) * 100
-> 
-> barplot(team_injury[, "1"],
-+         las = 2,
-+         main = "Injury Percentage by Team",
-+         ylab = "Percentage Injured",
-+         xlab = "Football Team",
-+         col = "steelblue",
-+         ylim = c(0, 50),
-+         cex.names = 0.7)
-> team_injury_table <- table(players$team,
-+                            players$injured)
-> 
-> chisq.test(team_injury_table)
+# Welch two-sample t-test
+t.test(age ~ injured, data = players)
 
-	Pearson's Chi-squared test
 
-data:  team_injury_table
-X-squared = 25.806, df = 23, p-value = 0.3101
+############################################################
+# PART 6: PREVIOUS INJURIES AND CURRENT INJURY STATUS
+############################################################
+
+# Mean previous injuries by current injury status
+aggregate(prev_injuries ~ injured,
+          data = players,
+          mean)
+
+# Boxplot
+boxplot(
+  prev_injuries ~ injured,
+  data = players,
+  names = c("Not injured", "Injured"),
+  main = "Previous Injuries by Current Injury Status",
+  xlab = "Current Injury Status",
+  ylab = "Number of Previous Injuries",
+  col = c("lightblue", "lightcoral")
+)
+
+# Wilcoxon rank-sum test
+wilcox.test(
+  prev_injuries ~ injured,
+  data = players
+)
+
+
+############################################################
+# PART 7: TRAINING LOAD AND INJURY STATUS
+############################################################
+
+# Mean training load by injury status
+aggregate(training_load ~ injured,
+          data = players,
+          mean)
+
+# Boxplot
+boxplot(
+  training_load ~ injured,
+  data = players,
+  names = c("Not injured", "Injured"),
+  main = "Training Load by Injury Status",
+  xlab = "Current Injury Status",
+  ylab = "Training Load",
+  col = c("lightblue", "lightcoral")
+)
+
+# Wilcoxon rank-sum test
+wilcox.test(
+  training_load ~ injured,
+  data = players
+)
+
+
+############################################################
+# PART 8: BMI AND INJURY STATUS
+############################################################
+
+# Mean BMI by injury status
+aggregate(bmi ~ injured,
+          data = players,
+          mean)
+
+# Boxplot
+boxplot(
+  bmi ~ injured,
+  data = players,
+  names = c("Not injured", "Injured"),
+  main = "BMI by Injury Status",
+  xlab = "Current Injury Status",
+  ylab = "BMI",
+  col = c("lightblue", "lightcoral")
+)
+
+# Wilcoxon rank-sum test
+wilcox.test(
+  bmi ~ injured,
+  data = players
+)
+
+
+############################################################
+# PART 9: MINUTES PLAYED AND INJURY STATUS
+############################################################
+
+# Mean minutes played by injury status
+aggregate(minutes_played ~ injured,
+          data = players,
+          mean)
+
+# Boxplot
+boxplot(
+  minutes_played ~ injured,
+  data = players,
+  names = c("Not injured", "Injured"),
+  main = "Minutes Played by Injury Status",
+  xlab = "Current Injury Status",
+  ylab = "Minutes Played",
+  col = c("lightblue", "lightcoral")
+)
+
+# Wilcoxon rank-sum test
+wilcox.test(
+  minutes_played ~ injured,
+  data = players
+)
+
+
+############################################################
+# PART 10: INJURY RATES BY TEAM
+############################################################
+
+# Injury counts by team
+team_injury_table <- table(
+  players$team,
+  players$injured
+)
+
+team_injury_table
+
+# Injury percentages by team
+team_injury <- prop.table(
+  team_injury_table,
+  1
+) * 100
+
+team_injury
+
+# Bar chart of injury percentages by team
+barplot(
+  team_injury[, "1"],
+  las = 2,
+  main = "Injury Percentage by Team",
+  ylab = "Percentage Injured",
+  xlab = "Football Team",
+  col = "steelblue",
+  ylim = c(0, 50),
+  cex.names = 0.7
+)
+
+# Chi-squared test using simulated p-value
+set.seed(123)
+
+chisq.test(
+  team_injury_table,
+  simulate.p.value = TRUE,
+  B = 10000
+)
+
+
+############################################################
+# END OF WEEK 6 EXPLORATORY ANALYSIS
+############################################################
