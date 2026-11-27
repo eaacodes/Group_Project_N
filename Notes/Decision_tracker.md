@@ -1,4 +1,4 @@
-#This is for our analytical decisions
+#This is for our analytical decisions.
 #What model you considered, why you picked it etc
 
 
