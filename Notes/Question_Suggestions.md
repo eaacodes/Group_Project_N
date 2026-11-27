@@ -7,8 +7,8 @@
 8) Does injury prevalence differ between playing positions?
 
 # Results
-3)What determines how many points Ashford get? Home / Away vs Opponent rank
-4) How exactly do Ashford get their results? Scoring more, conceding less etc
+3) What determines how many points Ashford get? Home / Away vs Opponent rank?
+4) How exactly do Ashford get their results? Scoring more, conceding less etc?
 9) Does Ashford United score more goals at home than away?
 
 
